@@ -46,7 +46,7 @@ export function icon(name, size = 20) {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${shapes[name] || shapes.info}</svg>`;
 }
 
-/** NUMU mark: rising bars with a leaf ("Where knowledge grows wealth"). */
+/** The official NUMU logo (mark + wordmark), cut from the brand artwork in assets/. */
 export function logo() {
-  return '<svg class="brand-symbol" width="32" height="32" viewBox="0 0 40 40" aria-hidden="true"><rect x="2" y="21" width="10" height="17" rx="5" fill="#8FD18F"/><path d="M15 17a5 5 0 0 1 5-5h0a5 5 0 0 1 5 5v1.5c0-4 2.5-6.5 5-6.5a3 3 0 0 1 3 3V33a5 5 0 0 1-5 5H20a5 5 0 0 1-5-5Z" fill="#23845A"/><path d="M15 17c3 0 6 2 7.5 5.5L25 28" stroke="#8FD18F" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M25 10c0-5.5 4-9 11-9 0 6-4.5 9-11 9Z" fill="#4CAF50"/></svg>';
+  return '<img class="brand-logo" src="/assets/numu-logo.png" alt="NUMU" width="427" height="144" decoding="async">';
 }

@@ -202,12 +202,12 @@ function render() {
     : renderLeaderboard(state, p, ui, you(p));
   const links = mobile => nav.map(([id, label, ic]) => `<a href="#${id}" class="nav-link ${r === id ? 'is-active' : ''}" ${r === id ? 'aria-current="page"' : ''}>${icon(ic, mobile ? 22 : 20)}<span>${label}</span>${id === 'compete' && !p.challengeUnlocked && !mobile ? icon('lock', 14) : ''}</a>`).join('');
   root.innerHTML = `<div class="shell">
-    <aside class="sidebar"><a class="brand" href="#home" aria-label="NUMU home">${logo()}<span class="wordmark">NUMU</span><span class="brand-ar" lang="ar">نمو</span></a>
+    <aside class="sidebar"><a class="brand" href="#home" aria-label="NUMU home">${logo()}</a>
       <nav class="side-nav" aria-label="Main">${links(false)}</nav>
       <div class="side-bottom"><button class="level-card" data-action="profile"><span class="avatar">${esc(initials(engagement.name))}</span><span><strong>${esc(engagement.name)}</strong><small>Level ${p.level.number}, ${esc(p.level.name)}</small></span></button>
       <div class="points-card"><span>Season points</span><strong>${p.season.toLocaleString('en-US')}</strong></div>
       <p class="side-note">${icon('globe', 14)} Qatar Stock Exchange</p></div></aside>
-    <div class="main-col"><header class="topbar"><a class="mobile-brand" href="#home">${logo()}<span class="wordmark">NUMU</span></a>
+    <div class="main-col"><header class="topbar"><a class="mobile-brand" href="#home" aria-label="NUMU home">${logo()}</a>
       <div class="top-actions"><span class="streak" title="Day streak">${icon('flame', 18)} ${p.streak}</span><button class="icon-btn" data-action="notifications" aria-label="Notifications">${icon('bell', 20)}</button><button class="avatar" data-action="profile" aria-label="Your profile">${esc(initials(engagement.name))}</button></div></header>
       <main id="main" tabindex="-1" class="page page-${r}">${page}</main>
       <footer class="foot">NUMU is a learning demo. Sample prices, fictional players, no real trading.</footer></div>

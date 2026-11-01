@@ -30,6 +30,9 @@ svg { flex-shrink: 0; }
 
 /* Brand */
 .brand { display: flex; align-items: center; gap: 9px; }
+.brand-logo { display: block; height: 40px; width: auto; }
+.mobile-brand .brand-logo { height: 30px; }
+.entry-top .brand-logo { height: 42px; }
 .wordmark { font-family: 'Nunito', var(--body); font-weight: 900; font-size: 24px; letter-spacing: 0.02em; color: var(--ink); }
 .brand-ar { font-family: 'Noto Kufi Arabic', sans-serif; font-size: 13px; color: var(--orange-deep); margin-left: 2px; }
 

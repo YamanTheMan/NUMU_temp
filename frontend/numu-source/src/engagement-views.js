@@ -2,7 +2,7 @@ import { icon, logo } from './icons.js';
 import { esc, initials } from './views.js';
 import { formatPoints } from './model.js';
 
-const brand = () => `<span class="brand">${logo()}<span class="wordmark">NUMU</span><span class="brand-ar" lang="ar">نمو</span></span>`;
+const brand = () => `<span class="brand">${logo()}</span>`;
 
 const fieldError = (errors, key) => errors[key] ? `<p class="field-error" id="err-${key}">${icon('info', 14)} ${esc(errors[key])}</p>` : '';
 const invalid = (errors, key) => errors[key] ? `aria-invalid="true" aria-describedby="err-${key}"` : '';
