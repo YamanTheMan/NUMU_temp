@@ -1,5 +1,9 @@
 
-const API_URL = "http://127.0.0.1:8000/api";
+// Local development talks to the FastAPI server directly.
+// On the deployed site, /api is forwarded to the numu-api backend (see vercel.json).
+const API_URL = ["127.0.0.1", "localhost"].includes(window.location.hostname)
+  ? "http://127.0.0.1:8000/api"
+  : "/api";
 
 export async function apiRequest(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, {
