@@ -1,0 +1,14 @@
+{
+  "name": "numu",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "NUMU: learn the Qatar market, then compete with friends",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "node build.js",
+    "test": "node --test",
+    "check": "node --check src/app.js && node --check src/views.js && node --check src/data.js && node --check src/model.js && node --check src/engagement.js && node --check src/engagement-views.js && node --check src/icons.js && node --check src/agents.js"
+  }
+}

@@ -1,0 +1,44 @@
+/* Entry screen for the NUMU demo. */
+.entry { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+.entry-top { display: flex; justify-content: space-between; align-items: center; padding: 22px clamp(16px, 5vw, 56px); }
+.entry-main { flex: 1; display: grid; grid-template-columns: 1.2fr 1fr; gap: clamp(24px, 5vw, 64px); align-items: center; padding: 20px clamp(16px, 5vw, 56px) 56px; max-width: 1240px; width: 100%; margin: 0 auto; outline: none; }
+.entry-story h1 { font-size: clamp(38px, 5.6vw, 68px); letter-spacing: -0.035em; line-height: 1.02; max-width: 13ch; }
+.entry-story > p { font-size: 18px; color: var(--muted); margin-top: 18px; max-width: 48ch; }
+.entry-steps { list-style: none; padding: 0; margin: 32px 0 0; display: grid; gap: 0; max-width: 460px; }
+.entry-steps li { display: flex; gap: 16px; align-items: center; padding: 14px 0; border-top: 1.5px solid var(--line); }
+.entry-steps li > span { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--orange-deep); color: #fff; font-family: var(--display); font-weight: 800; font-size: 17px; }
+.entry-steps li:nth-child(2) > span { background: var(--orange); color: var(--ink); }
+.entry-steps li:nth-child(3) > span { background: var(--orange-mid); color: var(--ink); }
+.entry-steps strong { display: block; font-family: var(--display); font-size: 18px; }
+.entry-steps small { color: var(--muted); font-size: 14px; }
+.entry-card { background: #1E7A48; color: #fff; border-radius: 28px; padding: clamp(24px, 4vw, 40px); }
+.entry-card h2 { font-size: 30px; font-weight: 800; margin-bottom: 20px; }
+.entry-card label { display: block; font-weight: 700; margin-bottom: 8px; }
+.entry-card input { width: 100%; height: 52px; padding: 0 16px; border-radius: 14px; border: 2px solid var(--ink); background: #fff; color: var(--ink); font-size: 16px; margin-bottom: 14px; }
+.entry-card .btn-primary { background: #fff; color: var(--ink); min-height: 52px; font-size: 16px; }
+.entry-card .btn-primary:hover { background: #E3F3E6; }
+.entry-card .fine { color: #fff; opacity: .85; }
+.entry-story > .entry-tagline { margin-top: 0; font-size: 16px;  font-weight: 700; color: var(--orange-deep); margin-bottom: 14px; }
+@media (max-width: 860px) { .entry-main { grid-template-columns: 1fr; } }
+.entry-steps li:nth-child(4) > span { background: var(--ink); color: #9FE0A9; }
+
+/* Login and sign-up */
+.auth-tabs { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 999px; background: rgba(255, 255, 255, .14); margin-bottom: 22px; }
+.auth-tabs button { padding: 10px 12px; border-radius: 999px; font-weight: 700; color: #fff; }
+.auth-tabs .is-on { background: #fff; color: var(--ink); }
+.entry-card .field { margin-bottom: 14px; }
+.entry-card .field input { margin-bottom: 0; }
+.label-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.text-btn { color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; font-size: 14px; }
+.text-btn:hover { color: #C9F0CF; }
+.pw-wrap { position: relative; }
+.pw-wrap input { padding-right: 76px; }
+.pw-toggle { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); padding: 7px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; color: var(--ink); background: #E3F3E6; }
+.entry-card input[aria-invalid="true"] { border-color: #FFB3BC; box-shadow: 0 0 0 3px rgba(255, 179, 188, .45); }
+.field-error { display: flex; gap: 6px; align-items: center; margin-top: 6px; font-weight: 700; font-size: 13.5px; color: #FFE0E4; }
+.check { display: flex !important; gap: 10px; align-items: flex-start; font-weight: 500 !important; font-size: 14px; margin: 4px 0 16px; cursor: pointer; }
+.check input { width: 18px !important; height: 18px !important; margin: 2px 0 0 !important; accent-color: var(--ink); flex-shrink: 0; }
+.check + .field-error { margin: -10px 0 14px; }
+.auth-notice { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; background: rgba(255, 255, 255, .16); font-size: 14px; margin-bottom: 14px; }
+.switch-line { text-align: center; margin-top: 14px; font-size: 14px; }
+.entry-card h2 { margin-bottom: 18px; }
