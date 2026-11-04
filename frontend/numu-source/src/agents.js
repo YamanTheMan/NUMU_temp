@@ -49,7 +49,7 @@ export const agents = [
     name: "Musa'id (مساعد)",
     icon: 'book',
     role:
-      'Your AI financial tutor. Learn investing in simple Arabic or English, with examples from Qatar.',
+      'Your AI investing chatbot. Ask anything in simple Arabic or English, with examples from Qatar.',
     prompts: [
       'What is dividend yield?',
       'Explain P/E like I’m new',
