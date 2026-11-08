@@ -182,6 +182,8 @@ def elevenlabs_voice_id() -> str | None:
     if override:
         return override
     key = _clean(ELEVENLABS_API_KEY)
+    if key.upper().startswith("ELEVENLABS_API_KEY="):
+        key = key.split("=", 1)[1].strip()
     if not key:
         return None
     voice = _clean(ELEVENLABS_VOICE_ID)
@@ -226,6 +228,35 @@ def elevenlabs_voice_id() -> str | None:
         raise LiveAvatarError("LiveAvatar did not return a voice id for the ElevenLabs voice.")
     _voice_cache[cache_key] = voice_id
     return voice_id
+
+
+def check_elevenlabs_key() -> dict:
+    """Ask ElevenLabs directly whether the key on the server works. Never returns the key."""
+    from config import ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID
+
+    key = _clean(ELEVENLABS_API_KEY)
+    if key.upper().startswith("ELEVENLABS_API_KEY="):
+        key = key.split("=", 1)[1].strip()
+    result = {"key_set": bool(key), "key_format": "sk_..." if key.startswith("sk_") else ("other" if key else None)}
+    if not key:
+        return result
+    try:
+        response = requests.get(
+            f"https://api.elevenlabs.io/v1/voices/{_clean(ELEVENLABS_VOICE_ID)}",
+            headers={"xi-api-key": key}, timeout=15,
+        )
+        result["elevenlabs_status"] = response.status_code
+        try:
+            detail = response.json().get("detail")
+        except ValueError:
+            detail = None
+        if isinstance(detail, dict):
+            result["elevenlabs_says"] = f"{detail.get('status') or detail.get('code') or ''}: {str(detail.get('message', ''))[:200]}"
+        elif response.ok:
+            result["voice_name"] = response.json().get("name")
+    except requests.RequestException as error:
+        result["elevenlabs_status"] = f"unreachable ({type(error).__name__})"
+    return result
 
 
 def create_session_token(avatar_id: str, language: str, max_seconds: int, sandbox: bool = False) -> dict:

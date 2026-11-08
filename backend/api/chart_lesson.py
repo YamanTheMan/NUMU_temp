@@ -612,6 +612,9 @@ Hard rules:
 - Never predict prices and never tell anyone to buy, sell or hold. If asked, say kindly that you
   can't advise, then teach how to think about it with the chart.
 - If you use the swings cue, say clearly it is not a prediction.
+- Keep the chart moving: use at least 3 different cues, and when you explain WHY, use the drivers cue
+  on that step. The cue "none" keeps the current picture on screen while you keep talking about it.
+- Each step is spoken while its cue animates, so describe what the learner is seeing right then.
 - If the question is not about prices or companies, you may use the cue "none" for every step.
 - "tag" is a 2 to 4 word label shown on screen for the step, in the learner's language."""
 

@@ -19,6 +19,7 @@ from api.heygen_api import (
     chosen_avatar_id,
     create_embed,
     create_session_token,
+    check_elevenlabs_key,
     is_configured,
     list_public_avatars,
     list_voices,
@@ -162,3 +163,9 @@ def ask_chart_tutor(request: AskRequest):
 def chart_stocks():
     """Companies Claire can chart."""
     return {"stocks": stock_list()}
+
+
+@router.get("/voice-check")
+def voice_check():
+    """Does the ElevenLabs key on the server work? (Shows no secrets.)"""
+    return check_elevenlabs_key()

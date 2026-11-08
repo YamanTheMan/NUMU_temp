@@ -251,7 +251,7 @@ class ChartStage {
 
   /** Run one spoken step's chart actions. */
   async play(actions = []) {
-    if (!this.pack) return;
+    if (!this.pack || !actions.length) return; // "none": keep what is on screen
     const types = actions.map(a => a.type);
     this.endStepExtras(types);
     for (const action of actions) {
