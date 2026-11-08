@@ -121,6 +121,163 @@ def tutor_context_id() -> str:
     return _context_id_cache
 
 
+# ---------------------------------------------------------------------------
+# Chart tutor: Claire talks while a chart moves beside her. Our own server
+# writes what she says (chart_lesson.py), so her built-in AI only greets.
+# ---------------------------------------------------------------------------
+
+CHART_GREETINGS = {
+    "en": "Hi, I'm Claire, your NUMU tutor. Ask me about any Qatari stock, like QNB or Ooredoo, and I'll walk you through its chart on the right.",
+    "ar": "أهلاً، أنا كلير، معلمتك في نمو. اسألني عن أي سهم قطري، مثل بنك قطر الوطني أو أوريدو، وسأشرح لك رسمه البياني على اليمين.",
+}
+CHART_PROMPT = TUTOR_PROMPT + """
+
+On this screen the NUMU app writes your explanations and shows a chart next to you.
+If the learner speaks to you directly, keep it to one or two short sentences and suggest
+they ask about a Qatari company so you can show its chart."""
+
+_chart_context_cache: dict[str, str] = {}
+
+
+def chart_context_id(language: str) -> str:
+    """One context per language, so Claire greets in the learner's language."""
+    language = "ar" if language == "ar" else "en"
+    if language in _chart_context_cache:
+        return _chart_context_cache[language]
+    name = f"NUMU chart tutor ({language})"
+    try:
+        listing = _data(_request("GET", "/v1/contexts", params={"page": 1, "page_size": 100}))
+        items = listing.get("results", []) if isinstance(listing, dict) else listing
+        for item in items or []:
+            if isinstance(item, dict) and item.get("name") == name and item.get("id"):
+                _chart_context_cache[language] = item["id"]
+                return item["id"]
+    except LiveAvatarError:
+        pass
+    created = _data(_request("POST", "/v1/contexts", json={
+        "name": name, "prompt": CHART_PROMPT, "opening_text": CHART_GREETINGS[language],
+    }))
+    if not isinstance(created, dict) or not created.get("id"):
+        raise LiveAvatarError("LiveAvatar did not return a context id.")
+    _chart_context_cache[language] = created["id"]
+    return created["id"]
+
+
+_voice_cache: dict[str, str] = {}
+
+
+def elevenlabs_voice_id() -> str | None:
+    """Import the team's ElevenLabs voice into LiveAvatar once, then reuse it.
+
+    The ElevenLabs key is stored as a LiveAvatar secret (it never reaches the
+    browser). Names carry a short fingerprint of the key, so a new key on
+    Vercel gets a fresh secret instead of silently reusing the old one.
+    """
+    import hashlib
+    import os
+
+    from config import ELEVENLABS_API_KEY, ELEVENLABS_VOICE_ID
+
+    override = _clean(os.getenv("LIVEAVATAR_VOICE_ID"))
+    if override:
+        return override
+    key = _clean(ELEVENLABS_API_KEY)
+    if not key:
+        return None
+    voice = _clean(ELEVENLABS_VOICE_ID)
+    tag = hashlib.sha256(key.encode()).hexdigest()[:8]
+    cache_key = f"{voice}:{tag}"
+    if cache_key in _voice_cache:
+        return _voice_cache[cache_key]
+
+    voice_name = f"NUMU Claire {voice} {tag}"
+    try:
+        listing = _data(_request("GET", "/v1/voices", params={"voice_type": "private", "page": 1, "page_size": 100}))
+        for item in (listing.get("results", []) if isinstance(listing, dict) else listing) or []:
+            if isinstance(item, dict) and item.get("name") == voice_name and item.get("id"):
+                _voice_cache[cache_key] = item["id"]
+                return item["id"]
+    except LiveAvatarError:
+        pass
+
+    secret_name = f"NUMU ElevenLabs {tag}"
+    secret_id = None
+    try:
+        secrets = _data(_request("GET", "/v1/secrets"))
+        for item in secrets if isinstance(secrets, list) else (secrets or {}).get("results", []):
+            if isinstance(item, dict) and item.get("secret_name") == secret_name and item.get("secret_type") == "ELEVENLABS_API_KEY":
+                secret_id = item.get("id")
+                break
+    except LiveAvatarError:
+        pass
+    if not secret_id:
+        created = _data(_request("POST", "/v1/secrets", json={
+            "secret_type": "ELEVENLABS_API_KEY", "secret_value": key, "secret_name": secret_name,
+        }))
+        secret_id = (created or {}).get("secret_id") or (created or {}).get("id")
+        if not secret_id:
+            raise LiveAvatarError("LiveAvatar did not return a secret id for the ElevenLabs key.")
+
+    bound = _data(_request("POST", "/v1/voices/third_party", json={
+        "secret_id": secret_id, "provider_voice_id": voice, "name": voice_name,
+    }))
+    voice_id = (bound or {}).get("voice_id") or (bound or {}).get("id")
+    if not voice_id:
+        raise LiveAvatarError("LiveAvatar did not return a voice id for the ElevenLabs voice.")
+    _voice_cache[cache_key] = voice_id
+    return voice_id
+
+
+def create_session_token(avatar_id: str, language: str, max_seconds: int, sandbox: bool = False) -> dict:
+    """A one-time token the browser uses to start a live video session (Web SDK, FULL mode).
+
+    PUSH_TO_TALK keeps Claire's own AI quiet: the app never asks her to listen,
+    it sends her the exact words to say, step by step, in sync with the chart.
+    """
+    from config import ELEVENLABS_MODEL
+
+    language = "ar" if language == "ar" else "en"
+    persona = {"context_id": chart_context_id(language), "language": language}
+    voice, voice_error = None, None
+    if not sandbox:
+        try:
+            voice = elevenlabs_voice_id()
+        except LiveAvatarError as error:
+            voice_error = str(error)
+    payload = {
+        "mode": "FULL",
+        "avatar_id": avatar_id,
+        "is_sandbox": sandbox,
+        "max_session_duration": max_seconds,
+        "interactivity_type": "PUSH_TO_TALK",
+        "video_settings": {"quality": "high", "encoding": "H264"},
+        "avatar_persona": persona,
+    }
+    if voice:
+        persona["voice_id"] = voice
+        persona["voice_settings"] = {"provider": "elevenLabs", "model": ELEVENLABS_MODEL, "stability": 0.5}
+    try:
+        data = _data(_request("POST", "/v1/sessions/token", json=payload))
+    except LiveAvatarError as error:
+        if not voice:
+            raise
+        # The custom voice was refused: still start the lesson with the avatar's own voice.
+        voice_error = str(error)
+        persona.pop("voice_id", None)
+        persona.pop("voice_settings", None)
+        voice = None
+        data = _data(_request("POST", "/v1/sessions/token", json=payload))
+    if not isinstance(data, dict) or not data.get("session_token"):
+        raise LiveAvatarError("LiveAvatar did not return a session token.")
+    return {
+        "session_token": data["session_token"],
+        "session_id": data.get("session_id"),
+        "voice": "elevenlabs" if voice else "default",
+        "voice_note": voice_error,
+        "greeting": CHART_GREETINGS[language],
+    }
+
+
 def list_public_avatars(page: int = 1, page_size: int = 100) -> dict:
     """Public avatars the team is allowed to use, with preview images."""
     response = _request("GET", "/v1/avatars/public", params={"page": page, "page_size": page_size})

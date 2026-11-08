@@ -25,11 +25,9 @@ import {
   unpinStock,
   chatWithStockAgent,
   researchStock,
-  getAvatarStatus,
-  startTutorSession
 } from "./api.js";
 import { renderHomeMarket } from "./home-market.js";
-import { renderTutor } from "./tutor.js";
+import { renderTutor, attachTutor, leaveTutor, setTutorTopic } from "./tutor.js";
 import { renderGamifiedHome } from "./home-dashboard.js";
 
 import { renderPortfolio } from "./portfolio.js";
@@ -73,43 +71,6 @@ let pinnedAgentsError = "";
 
 let selectedPinnedSymbol = null;
 
-/* Live avatar tutor (Claire). Kept out of full re-renders while a lesson is live. */
-let tutorUi = { status: 'idle', url: '', error: '', language: 'en', topic: '', info: null, infoLoaded: false };
-let tutorTimer = null;
-function drawTutor() {
-  const el = document.getElementById('tutor-root');
-  if (el) el.outerHTML = renderTutor(tutorUi);
-}
-async function loadTutorInfo() {
-  if (tutorUi.infoLoaded) return;
-  tutorUi.infoLoaded = true;
-  try {
-    tutorUi.info = await getAvatarStatus();
-    if (!tutorUi.info?.enabled) tutorUi.status = 'off';
-  } catch {
-    tutorUi.status = 'off';
-  }
-  drawTutor();
-}
-function endTutor(status = 'idle') {
-  clearTimeout(tutorTimer);
-  tutorUi.status = status;
-  tutorUi.url = '';
-}
-async function startTutor() {
-  if (tutorUi.status === 'loading' || tutorUi.status === 'live') return;
-  tutorUi.status = 'loading'; tutorUi.error = '';
-  drawTutor();
-  try {
-    const s = await startTutorSession(tutorUi.language);
-    tutorUi.status = 'live'; tutorUi.url = s.url;
-    clearTimeout(tutorTimer);
-    tutorTimer = setTimeout(() => { if (tutorUi.status === 'live') { endTutor('ended'); drawTutor(); } }, ((s.max_seconds || 180) + 15) * 1000);
-  } catch (error) {
-    tutorUi.status = 'error'; tutorUi.error = error.message;
-  }
-  drawTutor();
-}
 let pinnedChats = {};
 
 let marketStocks = [];
@@ -260,8 +221,6 @@ function award(type, label, points) { if (points > 0) state.events.push({ type, 
 
 /* ---------- Render ---------- */
 function render() {
-  // Re-rendering would reload the video and start a new paid session, so leave a live lesson alone.
-  if (session === 'app' && route() === 'tutor' && tutorUi.status === 'live' && document.querySelector('#tutor-root .tutor-frame')) return;
   if (session !== 'app') { document.title = 'Welcome to NUMU'; root.innerHTML = renderLogin(engagement, auth); return; }
   const r = route(), p = progress();
   document.title = `${nav.find(n => n[0] === r)[1]} · NUMU`;
@@ -279,7 +238,7 @@ function render() {
         researchErrors
       )
     : r === 'learn' ? renderLearn(state, p)
-    : r === 'tutor' ? renderTutor(tutorUi)
+    : r === 'tutor' ? renderTutor()
     : r === 'markets' ? renderQseMarket(marketStocks, ui, marketLoading, marketError, stocks)
     : r === 'portfolio' ? renderPortfolio(wallet, walletError, pinnedAgents)
     : r === 'compete' ? renderCompete(state, p, ui)
@@ -305,6 +264,7 @@ function render() {
       <main id="main" tabindex="-1" class="page page-${r}">${page}</main>
       <footer class="foot">NUMU is a learning demo. Sample prices, fictional players, no real trading.</footer></div>
     <nav class="bottom-nav" aria-label="Main">${links(true)}</nav></div>`;
+  if (r === 'tutor') attachTutor(document.getElementById('tutor-slot'));
 }
 
 /* ---------- Modals ---------- */
@@ -459,10 +419,7 @@ document.addEventListener('click', async e => {
   if (a === 'close-modal') closeModal();
   else if (a === 'goto') { closeModal(); location.hash = id; }
   else if (a === 'open-lesson') openLesson(id);
-  else if (a === 'tutor-lang') { tutorUi.language = id === 'ar' ? 'ar' : 'en'; drawTutor(); }
-  else if (a === 'tutor-start') startTutor();
-  else if (a === 'tutor-end') { endTutor('idle'); drawTutor(); }
-  else if (a === 'tutor-topic') { tutorUi.topic = id || ''; closeModal(); location.hash = 'tutor'; }
+  else if (a === 'tutor-topic') { setTutorTopic(id); closeModal(); location.hash = 'tutor'; }
   else if (a === 'player-next') { player.step += 1; const l = lessons.find(x => x.id === player.lessonId); if (player.step === l.cards.length + l.quiz.length) finishLesson(); drawPlayer(); }
   else if (a === 'player-back') { player.step = Math.max(0, player.step - 1); drawPlayer(); }
   else if (a === 'choose') { const l = lessons.find(x => x.id === player.lessonId); player.answers[player.step - l.cards.length] = Number(b.dataset.index); drawPlayer(); }
@@ -936,8 +893,7 @@ document.addEventListener('keydown', e => {
 });
 window.addEventListener('hashchange', () => {
   if (overlay.innerHTML) closeModal();
-  if (route() !== 'tutor' && tutorUi.status === 'live') endTutor('idle');
-  if (route() === 'tutor' && session === 'app') loadTutorInfo();
+  if (route() !== 'tutor') leaveTutor();
 
   render();
 
@@ -962,10 +918,6 @@ window.addEventListener('hashchange', () => {
 
   window.scrollTo(0, 0);
 });
-document.addEventListener('change', e => {
-  if (e.target.matches('[data-tutor-topic]')) { tutorUi.topic = e.target.value; drawTutor(); document.getElementById('tutor-topic')?.focus(); }
-});
-if (route() === 'tutor' && session === 'app') loadTutorInfo();
 setInterval(() => { const lock = nextLockTime(); document.querySelectorAll('[data-countdown]').forEach(el => { el.textContent = formatCountdown(lock - new Date()); }); }, 30000);
 render();
 if (route() === "portfolio" && session === "app") {

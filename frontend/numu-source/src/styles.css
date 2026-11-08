@@ -632,20 +632,3 @@ body.modal-open { overflow: hidden; }
   font-weight: 800;
 }
 
-/* Live avatar tutor (Claire) */
-.tutor-layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr); gap: 20px; align-items: start; }
-.tutor-stage { position: relative; aspect-ratio: 16 / 10; background: var(--ink); border-radius: var(--r-lg); overflow: hidden; }
-.tutor-frame { display: block; width: 100%; height: 100%; border: 0; }
-.tutor-poster { position: absolute; inset: 0; display: grid; place-items: center; }
-.tutor-poster img { width: 100%; height: 100%; object-fit: cover; }
-.tutor-poster-icon { color: #9FE0A9; }
-.tutor-poster-note { position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; gap: 8px; align-items: center; padding: 10px 14px; border-radius: 12px; background: rgba(18, 53, 42, .86); color: #fff; font-weight: 600; font-size: 14px; }
-.tutor-panel { display: flex; flex-direction: column; gap: 18px; padding: 20px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-lg); }
-.tutor-step { display: flex; gap: 12px; }
-.tutor-step > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
-.tutor-no { display: grid; place-items: center; width: 28px; height: 28px; flex-shrink: 0; border-radius: 50%; background: var(--orange-soft); color: var(--orange-deep); font-family: var(--display); font-weight: 800; }
-.tutor-select { width: 100%; min-height: 42px; padding: 0 12px; border: 1.5px solid var(--line); border-radius: 12px; background: #fff; }
-.tutor-hint { color: var(--muted); font-size: 13.5px; }
-.tutor-step .seg { align-self: flex-start; }
-.tutor-panel .fine { margin-top: 0; }
-@media (max-width: 900px) { .tutor-layout { grid-template-columns: 1fr; } }

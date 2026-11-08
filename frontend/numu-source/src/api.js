@@ -112,9 +112,17 @@ export function getAvatarStatus() {
   return apiRequest("/avatar/status");
 }
 
-export function startTutorSession(language = "en") {
-  return apiRequest("/avatar/session", {
+export function startLiveLesson(language = "en") {
+  return apiRequest("/avatar/token", {
     method: "POST",
-    body: JSON.stringify({ sandbox: false, language })
+    body: JSON.stringify({ language })
+  });
+}
+
+// What Claire says, step by step, with the chart moves for each step.
+export function askChartTutor(payload) {
+  return apiRequest("/avatar/ask", {
+    method: "POST",
+    body: JSON.stringify(payload)
   });
 }
