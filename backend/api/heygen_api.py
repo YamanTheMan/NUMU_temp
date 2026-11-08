@@ -132,6 +132,17 @@ def list_public_avatars(page: int = 1, page_size: int = 100) -> dict:
     return {"count": data.get("count", len(avatars)) if isinstance(data, dict) else len(avatars), "avatars": avatars}
 
 
+def list_voices(page: int = 1, page_size: int = 100) -> dict:
+    """Public voices (name, language, gender) that can be paired with any public avatar."""
+    data = _data(_request("GET", "/v1/voices", params={"voice_type": "public", "page": page, "page_size": page_size}))
+    results = data.get("results", []) if isinstance(data, dict) else data
+    voices = [
+        {k: item.get(k) for k in ("id", "name", "description", "language", "gender", "tags")}
+        for item in results or [] if isinstance(item, dict)
+    ]
+    return {"count": data.get("count", len(voices)) if isinstance(data, dict) else len(voices), "voices": voices}
+
+
 def create_embed(
     avatar_id: str,
     sandbox: bool,

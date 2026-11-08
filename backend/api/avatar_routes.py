@@ -17,6 +17,7 @@ from api.heygen_api import (
     create_embed,
     is_configured,
     list_public_avatars,
+    list_voices,
     tutor_context_id,
 )
 
@@ -49,6 +50,14 @@ def public_avatars(page: int = 1, page_size: int = 100):
         raise HTTPException(status_code=502, detail=str(error))
     except Exception as error:  # report unexpected failures instead of a bare 500
         raise HTTPException(status_code=502, detail=f"Avatar service error ({type(error).__name__}: {str(error)[:160]})")
+
+
+@router.get("/voices")
+def public_voices(page: int = 1, page_size: int = 100):
+    try:
+        return list_voices(page=page, page_size=min(max(page_size, 1), 100))
+    except LiveAvatarError as error:
+        raise HTTPException(status_code=502, detail=str(error))
 
 
 @router.post("/session")
