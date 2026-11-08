@@ -67,7 +67,7 @@ export function renderHome(s, p, ctx) {
 /* ---------------- Learn ---------------- */
 export function renderLearn(s, p) {
   const done = new Set(s.completedLessons);
-  return `${heading('Learn the Qatar market', 'Short lessons with a quick check at the end. Finish Start here to unlock ranked challenges.', `<div class="xp-chip">${icon('star', 16)} ${p.xp} XP, ${esc(p.level.name)}</div>`)}
+  return `${heading('Learn the Qatar market', 'Short lessons with a quick check at the end. Finish Start here to unlock ranked challenges.', `<a class="btn btn-ghost" href="#tutor">${icon('video', 16)} Live lesson with Claire</a><div class="xp-chip">${icon('star', 16)} ${p.xp} XP, ${esc(p.level.name)}</div>`)}
   <div class="overall"><div class="bar"><span style="width:${p.completionPercent}%"></span></div><span>${p.completedCount} of ${p.totalLessons} lessons</span></div>
   <div class="units">${p.units.map((u, ui) => `
     <section class="unit ${u.unlocked ? '' : 'is-locked'} ${u.complete ? 'is-complete' : ''}" aria-labelledby="unit-${u.id}">
@@ -90,7 +90,7 @@ export function renderPlayer(player, s, unlockedNow) {
     return `<div class="player-done">${unlockedNow ? `<div class="unlock-art" aria-hidden="true">${icon('unlock', 44)}</div><h3>Ranked challenges are open</h3><p>You finished Start here. Your picks now count on the leaderboard.</p>` : `<div class="done-art" aria-hidden="true">${icon('check', 40)}</div><h3>Lesson complete</h3>`}
       <p class="score-line">${correct} of ${l.quiz.length} correct. +${rules.lessonXp}${perfect ? ` +${rules.perfectBonus} perfect` : ''} XP${player.alreadyDone ? ' (already earned)' : ''}</p>
       <div class="takeaway"><strong>Takeaway</strong><p>${esc(l.takeaway)}</p></div>
-      <div class="player-actions">${unlockedNow || s.completedLessons.length >= 3 ? `<button class="btn btn-primary" data-action="goto" data-id="compete">Go to the challenge</button>` : ''}${nextAfter(l.id, s) ? `<button class="btn ${unlockedNow ? 'btn-ghost' : 'btn-primary'}" data-action="open-lesson" data-id="${nextAfter(l.id, s).id}">Next lesson</button>` : ''}<button class="btn btn-ghost" data-action="close-modal">Close</button></div></div>`;
+      <div class="player-actions">${unlockedNow || s.completedLessons.length >= 3 ? `<button class="btn btn-primary" data-action="goto" data-id="compete">Go to the challenge</button>` : ''}${nextAfter(l.id, s) ? `<button class="btn ${unlockedNow ? 'btn-ghost' : 'btn-primary'}" data-action="open-lesson" data-id="${nextAfter(l.id, s).id}">Next lesson</button>` : ''}<button class="btn btn-ghost" data-action="tutor-topic" data-id="${l.id}">${icon('video', 16)} Go over it with Claire</button><button class="btn btn-ghost" data-action="close-modal">Close</button></div></div>`;
   }
   if (step < l.cards.length) {
     const c = l.cards[step];

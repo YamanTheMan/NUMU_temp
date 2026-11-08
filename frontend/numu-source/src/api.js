@@ -106,3 +106,15 @@ export function researchStock(symbol) {
     body: JSON.stringify({ symbol })
   });
 }
+
+// Live avatar tutor (LiveAvatar). The server holds the API key.
+export function getAvatarStatus() {
+  return apiRequest("/avatar/status");
+}
+
+export function startTutorSession(language = "en") {
+  return apiRequest("/avatar/session", {
+    method: "POST",
+    body: JSON.stringify({ sandbox: false, language })
+  });
+}

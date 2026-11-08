@@ -33,8 +33,17 @@ def is_configured() -> bool:
     return bool(LIVEAVATAR_API_KEY)
 
 
-def chosen_avatar_id() -> str | None:
-    return LIVEAVATAR_AVATAR_ID or None
+# The team's pick: "Claire (Friendly)", a LiveAvatar public avatar (ids are not secret).
+DEFAULT_TUTOR = {
+    "id": "24211c5e-1374-45de-a625-89b992e9c002",
+    "name": "Claire",
+    "preview_url": "https://static.liveavatar.com/avatars/thumbnails/7b259367428f49138bdaa716565c3636/emotion-curated-20261004/24211c5e-1374-45de-a625-89b992e9c002-612-a433220bf8a0344b.jpg",
+}
+
+
+def chosen_avatar_id() -> str:
+    """LIVEAVATAR_AVATAR_ID on Vercel overrides the default tutor."""
+    return LIVEAVATAR_AVATAR_ID or DEFAULT_TUTOR["id"]
 
 
 def _headers() -> dict:

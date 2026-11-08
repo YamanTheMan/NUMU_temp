@@ -11,6 +11,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from api.heygen_api import (
+    DEFAULT_TUTOR,
     SANDBOX_AVATAR_ID,
     LiveAvatarError,
     chosen_avatar_id,
@@ -36,9 +37,13 @@ class SessionRequest(BaseModel):
 
 @router.get("/status")
 def avatar_status():
+    custom = chosen_avatar_id() != DEFAULT_TUTOR["id"]
     return {
         "enabled": is_configured(),
         "avatar_chosen": bool(chosen_avatar_id()),
+        "tutor_name": "Your tutor" if custom else DEFAULT_TUTOR["name"],
+        "preview_url": None if custom else DEFAULT_TUTOR["preview_url"],
+        "max_seconds": LESSON_SECONDS,
     }
 
 
