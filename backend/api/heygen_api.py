@@ -45,23 +45,27 @@ def _data(response: requests.Response):
         body = {}
     if not response.ok:
         message = body.get("message") if isinstance(body, dict) else None
-        raise LiveAvatarError(message or f"LiveAvatar request failed ({response.status_code}).")
+        raise LiveAvatarError(f"LiveAvatar said {response.status_code}: {message or 'request failed'}")
     return body.get("data", body) if isinstance(body, dict) else body
+
+
+def _request(method: str, path: str, **kwargs) -> requests.Response:
+    try:
+        return requests.request(method, f"{BASE_URL}{path}", headers=_headers(), timeout=20, **kwargs)
+    except requests.RequestException as error:
+        raise LiveAvatarError(f"Could not reach LiveAvatar ({type(error).__name__}).") from error
 
 
 def list_public_avatars(page: int = 1, page_size: int = 100) -> dict:
     """Public avatars the team is allowed to use, with preview images."""
-    response = requests.get(
-        f"{BASE_URL}/v1/avatars/public",
-        headers=_headers(),
-        params={"page": page, "page_size": page_size},
-        timeout=20,
-    )
+    response = _request("GET", "/v1/avatars/public", params={"page": page, "page_size": page_size})
     data = _data(response)
     results = data.get("results", []) if isinstance(data, dict) else data
     avatars = []
     for item in results or []:
-        voice = item.get("default_voice") or {}
+        if not isinstance(item, dict):
+            continue
+        voice = item.get("default_voice") if isinstance(item.get("default_voice"), dict) else {}
         avatars.append({
             "id": item.get("id"),
             "name": item.get("name"),
@@ -91,7 +95,7 @@ def create_embed(
         payload["context_id"] = context_id
     if voice_id:
         payload["voice_id"] = voice_id
-    response = requests.post(f"{BASE_URL}/v2/embeddings", headers=_headers(), json=payload, timeout=20)
+    response = _request("POST", "/v2/embeddings", json=payload)
     data = _data(response)
     if not isinstance(data, dict) or not data.get("url"):
         raise LiveAvatarError("LiveAvatar did not return a player link.")

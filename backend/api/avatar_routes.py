@@ -46,6 +46,8 @@ def public_avatars(page: int = 1, page_size: int = 100):
         return list_public_avatars(page=page, page_size=min(max(page_size, 1), 100))
     except LiveAvatarError as error:
         raise HTTPException(status_code=502, detail=str(error))
+    except Exception as error:  # report unexpected failures instead of a bare 500
+        raise HTTPException(status_code=502, detail=f"Avatar service error ({type(error).__name__}: {str(error)[:160]})")
 
 
 @router.post("/session")
@@ -75,5 +77,7 @@ def start_session(request: SessionRequest):
         )
     except LiveAvatarError as error:
         raise HTTPException(status_code=502, detail=str(error))
+    except Exception as error:  # report unexpected failures instead of a bare 500
+        raise HTTPException(status_code=502, detail=f"Avatar service error ({type(error).__name__}: {str(error)[:160]})")
 
     return {**embed, "sandbox": request.sandbox, "max_seconds": seconds}
