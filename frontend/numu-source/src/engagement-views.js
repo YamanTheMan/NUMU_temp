@@ -1,3 +1,4 @@
+import { renderCollectibleBadge } from './badge-collection.js';
 import { icon, logo } from './icons.js';
 import { esc, initials } from './views.js';
 import { formatPoints } from './model.js';
@@ -58,6 +59,6 @@ export function renderProfile(engagement, p, badgeList) {
   return `<div class="profile"><div class="profile-top"><span class="avatar lg">${esc(initials(engagement.name))}</span><div><h3>${esc(engagement.name)}</h3><p class="muted">${engagement.email ? `${esc(engagement.email)}<br>` : ''}Level ${p.level.number}: ${esc(p.level.name)}</p></div></div>
   <div class="level-bar"><div class="bar"><span style="width:${p.level.progress}%"></span></div><small>${p.xp} XP${p.level.next ? `, ${p.level.next.min - p.xp} to ${esc(p.level.next.name)}` : ', top level'}</small></div>
   <div class="profile-stats"><div><strong>${p.completedCount}/${p.totalLessons}</strong><span>Lessons</span></div><div><strong>${p.streak}</strong><span>Day streak</span></div><div><strong>${formatPoints(p.season)}</strong><span>Season points</span></div></div>
-  <h4>Badges</h4><ul class="badges">${badgeList.map(b => `<li class="${b.earned ? 'is-earned' : ''}" title="${esc(b.description)}">${icon(b.earned ? b.icon : 'lock', 20)}<strong>${esc(b.name)}</strong><small>${esc(b.description)}</small></li>`).join('')}</ul>
+  <h4>Badges · ${badgeList.filter(b => b.earned).length} / ${badgeList.length}</h4><ul class="numu-badge-gallery">${badgeList.map(b => `<li>${renderCollectibleBadge(b)}</li>`).join('')}</ul>
   <div class="profile-actions"><button class="btn btn-ghost" data-action="notifications">${icon('bell', 16)} Notifications</button><button class="btn btn-ghost" data-action="demo-unlock">${icon('unlock', 16)} Demo: finish Start here</button><button class="btn btn-ghost" data-action="demo-reset">${icon('refresh', 16)} Reset demo</button><button class="btn btn-ghost" data-action="demo-logout">${icon('log-out', 16)} Log out</button></div></div>`;
 }

@@ -40,6 +40,7 @@ const shapes = {
   refresh: '<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8m0-4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16m0 4v-4h-4"/>',
   route: '<circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H16a3.5 3.5 0 0 0 0-7H8a3.5 3.5 0 0 1 0-7h7.5"/>',
   settings: '<path d="M4 7h16M4 17h16"/><circle cx="8" cy="7" r="3"/><circle cx="16" cy="17" r="3"/>',
+  wallet: '<rect x="3" y="6" width="18" height="15" rx="2.5"/><path d="M3 9V5a2 2 0 0 1 2-2h13"/><path d="M21 12h-6a3 3 0 0 0 0 6h6"/><circle cx="16" cy="15" r=".8" fill="currentColor" stroke="none"/>',
 };
 
 export function icon(name, size = 20) {

@@ -1,0 +1,17 @@
+/* NUMU collectible badge visuals */
+.numu-badge-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:16px;margin:16px 0 24px;padding:0;list-style:none}
+.numu-badge-gallery > li{list-style:none;min-width:0}
+.numu-achievement{display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px;padding:14px 10px 13px;border:1px solid #dfe9df;border-radius:18px;background:#fff;min-width:0;height:100%;box-sizing:border-box;box-shadow:0 2px 8px #133e2910}
+.numu-achievement-art{width:92px;height:100px;display:grid;place-items:center;flex-shrink:0}
+.numu-achievement-art img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.numu-achievement.is-locked .numu-achievement-art{filter:grayscale(1);opacity:.38}
+.numu-achievement strong{font-size:13px;line-height:1.35;color:#12382a}
+.numu-achievement p{font-size:11px;line-height:1.5;color:#5f7469;margin:0;flex:1}
+.numu-achievement small{font-size:11px;font-weight:700;color:#71837a}
+.numu-achievement.is-earned small{color:#188454}
+.numu-achievement.compact{padding:5px 2px;background:transparent;border:0;box-shadow:none;gap:5px}
+.numu-achievement.compact .numu-achievement-art{width:64px;height:72px}
+.numu-achievement.compact strong{font-size:11px}
+.numu-achievement.compact small{font-size:10px}
+.gh-badge-list .numu-achievement{min-width:0}
+@media(max-width:600px){.numu-badge-gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}

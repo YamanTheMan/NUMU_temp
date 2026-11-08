@@ -1,3 +1,4 @@
+import { getCollectibleBadges } from './badge-collection.js';
 import {
   renderHomeAgentSummary,
   renderPinnedAgents
@@ -22,9 +23,11 @@ import {
   getPinnedAgents,
   pinStock,
   unpinStock,
-  chatWithStockAgent
+  chatWithStockAgent,
+  researchStock
 } from "./api.js";
 import { renderHomeMarket } from "./home-market.js";
+import { renderGamifiedHome } from "./home-dashboard.js";
 
 import { renderPortfolio } from "./portfolio.js";
 
@@ -70,6 +73,35 @@ let marketStocks = [];
 let marketError = "";
 let marketLoading = false;
 
+let stockResearch = {};
+let researchLoading = {};
+let researchErrors = {};
+
+
+async function generateStockResearch(symbol) {
+  if (researchLoading[symbol]) return;
+
+  researchLoading[symbol] = true;
+  researchErrors[symbol] = "";
+  render();
+
+  try {
+    const result = await researchStock(symbol);
+
+    stockResearch[symbol] = {
+      report: result.report,
+      updatedAt: new Date().toISOString()
+    };
+
+  } catch (error) {
+    researchErrors[symbol] = error.message;
+    console.error("Research failed:", symbol, error);
+
+  } finally {
+    researchLoading[symbol] = false;
+    render();
+  }
+}
 
 
 async function loadPinnedAgents() {
@@ -105,15 +137,27 @@ async function loadPinnedAgents() {
 }
 
 
+
 async function loadMarketStocks() {
   marketLoading = true;
   marketError = "";
 
   try {
     const result = await getStocks();
-    marketStocks = result.stocks;
+
+    marketStocks = Array.isArray(result)
+      ? result
+      : Array.isArray(result?.stocks)
+        ? result.stocks
+        : [];
+
+    console.log("QSE stocks loaded:", marketStocks.length);
+
   } catch (error) {
+    marketStocks = [];
     marketError = error.message;
+    console.error("Unable to load QSE stocks:", error);
+
   } finally {
     marketLoading = false;
   }
@@ -176,7 +220,7 @@ function render() {
   if (session !== 'app') { document.title = 'Welcome to NUMU'; root.innerHTML = renderLogin(engagement, auth); return; }
   const r = route(), p = progress();
   document.title = `${nav.find(n => n[0] === r)[1]} · NUMU`;
-  const page = r === 'home' ? renderHome(state, p, {
+  const page = r === 'home' ? renderGamifiedHome(state, p, {
         name: engagement.name,
         greeting: getQatarGreeting(),
         you: you(p)
@@ -184,7 +228,10 @@ function render() {
       renderHomeAgentSummary(
         pinnedAgents,
         pinnedAgentsLoading,
-        pinnedAgentsError
+        pinnedAgentsError,
+        stockResearch,
+        researchLoading,
+        researchErrors
       )
     : r === 'learn' ? renderLearn(state, p)
     : r === 'markets' ? renderQseMarket(marketStocks, ui, marketLoading, marketError, stocks)
@@ -401,7 +448,7 @@ document.addEventListener('click', async e => {
 
     return;
   }
-  else if (a === 'stock') { const st = stocks.find(s => s.ticker === id); openModal(st.name, renderStock(st, state), 'stock-modal'); }
+  else if (a === 'stock') { state.viewedCompanies = [...new Set([...(state.viewedCompanies || []), id])]; persist(); const st = stocks.find(s => s.ticker === id); openModal(st.name, renderStock(st, state), 'stock-modal'); }
   else if (a === 'qse-stock') {
     const stock = marketStocks.find(s => s.symbol === id);
 
@@ -409,6 +456,8 @@ document.addEventListener('click', async e => {
       toast('Stock not found.');
       return;
     }
+    state.viewedCompanies = [...new Set([...(state.viewedCompanies || []), stock.symbol])];
+    persist();
 
     const price = Number(stock.price).toFixed(3);
 
@@ -481,6 +530,9 @@ document.addEventListener('click', async e => {
   else if (a === 'pick-sector') { ui.pickSector = id; render(); document.querySelector(`[data-action="pick-sector"][data-id="${id}"]`)?.focus(); }
   else if (a === 'review-picks') { const v = validatePicks(ch.picks); if (!v.valid) { toast(v.error); return; } openModal('Why these three?', renderReasonForm(state), 'reason-modal'); }
   else if (a === 'edit-picks') { ch.status = 'open'; persist(); render(); }
+  else if (a === "generate-stock-research") {
+    await generateStockResearch(id);
+  }
   else if (a === 'play-round') {
     const ranked = ch.mode === 'ranked';
     ch.result = playRound(ch.round, ch.picks, { ranked });
@@ -507,7 +559,7 @@ document.addEventListener('click', async e => {
   else if (a === 'copy-code') { navigator.clipboard?.writeText(id).then(() => toast(`Copied ${id}`), () => toast(`Code: ${id}`)); }
   else if (a === 'create-league') openModal('Create a league', `<form id="league-form"><label for="league-name">League name</label><input id="league-name" name="name" maxlength="32" placeholder="e.g. Office League" autocomplete="off"><p class="form-error" id="league-error" role="alert"></p><button class="btn btn-primary wide" type="submit">Create league</button></form><p class="fine">You’ll get a code to share with friends.</p>`);
   else if (a === 'join-league') openModal('Join a league', `<form id="join-form"><label for="join-code">Invite code</label><input id="join-code" name="code" maxlength="6" placeholder="DOHA24" autocomplete="off" style="text-transform:uppercase"><p class="form-error" id="join-error" role="alert"></p><button class="btn btn-primary wide" type="submit">Join league</button></form><p class="fine">Demo tip: try DOHA24.</p>`);
-  else if (a === 'profile') openModal('Your profile', renderProfile(engagement, progress(), earnedBadges(state)), 'profile-modal');
+  else if (a === 'profile') openModal('Your profile', renderProfile(engagement, progress(), getCollectibleBadges(state)), 'profile-modal');
   else if (a === 'notifications') openModal('Notifications', renderNotifications(engagement));
   else if (a === 'toggle-digest') { const k = b.dataset.kind === 'morning' ? 'morningEnabled' : 'eveningEnabled'; engagement[k] = !engagement[k]; persist(); b.setAttribute('aria-checked', String(engagement[k])); }
   else if (a === 'demo-unlock') { for (const id2 of units[0].lessons) if (!state.completedLessons.includes(id2)) { state.completedLessons.push(id2); award('lesson', id2, rules.lessonXp); } markActive(); if (ch.status === 'open') ch.mode = 'ranked'; persist(); closeModal(); render(); toast('Start here finished. Ranked rounds are open.'); }
@@ -572,6 +624,8 @@ document.addEventListener('submit', async e => {
 
       wallet = result.portfolio;
       walletError = '';
+      state.simulatedTradeCount = (state.simulatedTradeCount || 0) + 1;
+      persist();
 
       if (overlay.innerHTML) {
         closeModal();

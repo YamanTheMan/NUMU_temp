@@ -527,3 +527,104 @@ body.modal-open { overflow: hidden; }
     padding: 18px;
   }
 }
+
+/* NUMU: Educational research resources */
+
+.numu-resources {
+  display: grid;
+  gap: 32px;
+  margin-top: 28px;
+}
+
+.numu-resources h3 {
+  font-size: 19px;
+  color: #12352a;
+  margin-bottom: 8px;
+}
+
+.numu-term-grid,
+.numu-source-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.numu-term-grid {
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, 260px), 1fr)
+  );
+}
+
+.numu-term-card {
+  background: #f3f8f4;
+  border: 1px solid #dce8df;
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.numu-term-card h4 {
+  color: #1e7a48;
+  font-size: 17px;
+  margin-bottom: 10px;
+}
+
+.numu-term-card p {
+  line-height: 1.65;
+  margin-bottom: 10px;
+}
+
+.numu-source-card {
+  display: grid;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid #dce8df;
+  border-radius: 14px;
+  padding: 18px;
+  text-decoration: none;
+  color: #12352a;
+}
+
+.numu-source-card:hover {
+  border-color: #1e7a48;
+  background: #f7fbf8;
+}
+
+.numu-source-link {
+  color: #1e7a48;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+
+.company-logo-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+  padding: 6px;
+  background: white;
+  border: 1px solid #dce5df;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.company-logo-box img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.company-logo-box img[hidden],
+.company-logo-fallback[hidden] {
+  display: none;
+}
+
+.company-logo-fallback {
+  color: #12352a;
+  font-size: 13px;
+  font-weight: 800;
+}

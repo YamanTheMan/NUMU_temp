@@ -1,5 +1,6 @@
 
 import { esc } from "./views.js";
+import { renderCompanyLogo } from "./company-logos.js";
 
 // Matches the visual language of the original NUMU Markets page.
 const sectors = [
@@ -120,13 +121,7 @@ export function renderQseRows(qseStocks, ui, knownStocks) {
               data-action="qse-stock"
               data-id="${esc(stock.symbol)}"
             >
-              <span
-                class="ticker-mark"
-                style="--sector:${sector.color}"
-                aria-hidden="true"
-              >
-                ${esc(stock.symbol)}
-              </span>
+              ${renderCompanyLogo(stock.symbol)}
 
               <span class="stock-name">
                 <strong>${esc(stock.company)}</strong>

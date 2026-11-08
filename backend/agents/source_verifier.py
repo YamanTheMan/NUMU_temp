@@ -67,14 +67,42 @@ def is_safe_host(url):
         return False
 
 
+
 def normalize_date(date_string):
     if not date_string:
         return None
 
     now = datetime.now(timezone.utc)
+    value = str(date_string).strip()
 
+    # SerpAPI Google News commonly uses dates like:
+    # "10/26/2026, 04:02 AM, +0000 UTC"
+    formats = [
+        "%m/%d/%Y, %I:%M %p, %z UTC",
+        "%m/%d/%Y, %I:%M %p, %z",
+        "%m/%d/%Y, %I:%M %p",
+    ]
+
+    for fmt in formats:
+        try:
+            parsed = datetime.strptime(value, fmt)
+
+            if parsed.tzinfo is None:
+                parsed = parsed.replace(tzinfo=timezone.utc)
+
+            parsed = parsed.astimezone(timezone.utc)
+
+            if parsed > now:
+                return None
+
+            return parsed.isoformat()
+
+        except ValueError:
+            continue
+
+    # Fallback for other formats such as "2 days ago".
     parsed = dateparser.parse(
-        str(date_string),
+        value,
         settings={
             "RELATIVE_BASE": now,
             "RETURN_AS_TIMEZONE_AWARE": True,

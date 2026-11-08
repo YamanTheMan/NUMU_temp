@@ -61,6 +61,7 @@ def research_company(company, sector, description):
                 "affect this company right now."
             ),
             "insights": [],
+            "financial_terms": [],
             "sources": []
         }
 
@@ -85,5 +86,20 @@ def research_company(company, sector, description):
         ),
         "summary": analysis["summary"],
         "insights": analysis["insights"],
-        "sources": analysis["sources"]
+        "financial_terms": analysis.get("financial_terms", []),
+        "sources": [
+            {
+                "id": source["id"],
+                "title": source["title"],
+                "url": source["url"],
+                "publisher": source.get("publisher"),
+                "published_at": source["published_at"]
+            }
+            for source in sources
+            if source["id"] in {
+                source_id
+                for insight in analysis["insights"]
+                for source_id in insight.get("source_ids", [])
+            }
+        ]
     }

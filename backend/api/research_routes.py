@@ -30,7 +30,14 @@ def research_stock(request: ResearchRequest):
     try:
         # Use the registered company name, not arbitrary
         # user-supplied text.
-        report = research_company(stock["company"])
+        report = research_company(
+            company=stock["company"],
+            sector=stock.get("sector") or "Unknown",
+            description=stock.get("description") or (
+                f"{stock['company']} is a company listed "
+                "on the Qatar Stock Exchange."
+            )
+        )
 
         return {
             "symbol": symbol,
