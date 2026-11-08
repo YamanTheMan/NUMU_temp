@@ -7,7 +7,16 @@ the access terms we were given.
 
 import requests
 
-from config import LIVEAVATAR_API_KEY, LIVEAVATAR_AVATAR_ID
+from config import LIVEAVATAR_API_KEY as _RAW_KEY, LIVEAVATAR_AVATAR_ID as _RAW_AVATAR_ID
+
+
+def _clean(value: str | None) -> str:
+    """Trim spaces, line breaks and quotes that sneak in when a value is pasted."""
+    return (value or "").strip().strip('"').strip("'").strip()
+
+
+LIVEAVATAR_API_KEY = _clean(_RAW_KEY)
+LIVEAVATAR_AVATAR_ID = _clean(_RAW_AVATAR_ID)
 
 BASE_URL = "https://api.liveavatar.com"
 
