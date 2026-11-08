@@ -17,6 +17,7 @@ from api.heygen_api import (
     create_embed,
     is_configured,
     list_public_avatars,
+    tutor_context_id,
 )
 
 router = APIRouter(prefix="/api/avatar", tags=["Avatar tutor"])
@@ -72,7 +73,7 @@ def start_session(request: SessionRequest):
             sandbox=request.sandbox,
             max_seconds=seconds,
             language=request.language,
-            context_id=os.getenv("LIVEAVATAR_CONTEXT_ID") or None,
+            context_id=(os.getenv("LIVEAVATAR_CONTEXT_ID") or "").strip() or tutor_context_id(),
             voice_id=os.getenv("LIVEAVATAR_VOICE_ID") or None,
         )
     except LiveAvatarError as error:

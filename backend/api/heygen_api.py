@@ -65,6 +65,53 @@ def _request(method: str, path: str, **kwargs) -> requests.Response:
         raise LiveAvatarError(f"Could not reach LiveAvatar ({type(error).__name__}).") from error
 
 
+TUTOR_CONTEXT_NAME = "NUMU lesson tutor"
+TUTOR_PROMPT = """You are the NUMU avatar tutor. NUMU teaches complete beginners in Qatar how investing
+and the Qatar Stock Exchange (QSE) work. You teach short, friendly lesson sessions out loud.
+
+How you teach:
+- Speak in short, simple sentences. One idea at a time, then check the learner is following.
+- Use everyday Qatari examples: QNB, Ooredoo, Industries Qatar, riyals (QAR), the QE Index.
+- Reply in the language the learner uses, English or Arabic.
+- Cover one topic per session: what a share is, how the QSE trading day works, how to read a
+  stock quote, dividends, risk and diversification, or how NUMU's Pick 3 challenge works.
+- End each topic with one quick question to check understanding.
+
+Rules:
+- You explain, you never advise. Never tell anyone to buy, sell or hold a specific stock,
+  and never predict prices. If asked, say you can't give advice and teach how to think about it.
+- NUMU uses virtual riyals and sample prices, never real money.
+- Keep answers under about 40 seconds of speech."""
+TUTOR_OPENING = "Hi, I'm your NUMU tutor. Want a quick lesson on how the Qatar Stock Exchange works, or is there a topic you're curious about?"
+
+_context_id_cache: str | None = None
+
+
+def tutor_context_id() -> str:
+    """Find or create the tutor's context (its instructions and opening line)."""
+    global _context_id_cache
+    if _context_id_cache:
+        return _context_id_cache
+    try:
+        listing = _data(_request("GET", "/v1/contexts", params={"page": 1, "page_size": 100}))
+        items = listing.get("results", []) if isinstance(listing, dict) else listing
+        for item in items or []:
+            if isinstance(item, dict) and item.get("name") == TUTOR_CONTEXT_NAME and item.get("id"):
+                _context_id_cache = item["id"]
+                return _context_id_cache
+    except LiveAvatarError:
+        pass  # listing is optional; fall through and create one
+    created = _data(_request("POST", "/v1/contexts", json={
+        "name": TUTOR_CONTEXT_NAME,
+        "prompt": TUTOR_PROMPT,
+        "opening_text": TUTOR_OPENING,
+    }))
+    if not isinstance(created, dict) or not created.get("id"):
+        raise LiveAvatarError("LiveAvatar did not return a context id.")
+    _context_id_cache = created["id"]
+    return _context_id_cache
+
+
 def list_public_avatars(page: int = 1, page_size: int = 100) -> dict:
     """Public avatars the team is allowed to use, with preview images."""
     response = _request("GET", "/v1/avatars/public", params={"page": page, "page_size": page_size})
