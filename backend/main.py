@@ -6,6 +6,7 @@ from api.wallet_routes import router as wallet_router
 from api.tutor_routes import router as tutor_router
 from api.research_routes import router as research_router
 from api.agent_routes import router as agent_router
+from api.avatar_routes import router as avatar_router
 from api.qse_api import get_all_stocks
 
 app = FastAPI(title="NUMU API", version="0.1.0")
@@ -27,6 +28,7 @@ app.include_router(wallet_router)
 app.include_router(tutor_router)
 app.include_router(research_router)
 app.include_router(agent_router)
+app.include_router(avatar_router)
 
 # Temporary sample data (not live market prices)
 stocks = {
