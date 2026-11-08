@@ -6,8 +6,14 @@ from api.wallet_routes import router as wallet_router
 from api.tutor_routes import router as tutor_router
 from api.research_routes import router as research_router
 from api.agent_routes import router as agent_router
+from api.qse_api import get_all_stocks
 
 app = FastAPI(title="NUMU API", version="0.1.0")
+
+@app.get("/api/stocks")
+def get_qse_stocks():
+    return get_all_stocks()
+
 
 app.add_middleware(
     CORSMiddleware,

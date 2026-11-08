@@ -1,9 +1,8 @@
 
-// Local development talks to the FastAPI server directly.
-// On the deployed site, /api is forwarded to the numu-api backend (see vercel.json).
-const API_URL = ["127.0.0.1", "localhost"].includes(window.location.hostname)
-  ? "http://127.0.0.1:8000/api"
-  : "/api";
+const API_URL =
+  ["localhost", "127.0.0.1"].includes(window.location.hostname)
+    ? "http://127.0.0.1:8000/api"
+    : "/api";
 
 export async function apiRequest(path, options = {}) {
   const response = await fetch(`${API_URL}${path}`, {
@@ -97,5 +96,13 @@ export function chatWithStockAgent(
       language,
       history
     })
+  });
+}
+
+
+export function researchStock(symbol) {
+  return apiRequest("/research/company", {
+    method: "POST",
+    body: JSON.stringify({ symbol })
   });
 }
