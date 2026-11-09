@@ -177,6 +177,19 @@
   .tt-stage { min-height: 600px; }
 }
 @media (max-width: 560px) {
+  /* Phones: Claire, then her chart, then the controls */
+  .tt-grid { display: flex; flex-direction: column; gap: 12px; }
+  .tt-left { display: contents; }
+  .tt-video { order: 1; aspect-ratio: 16 / 11; }
+  .tt-right { order: 2; }
+  .tt-controls { order: 3; }
+  .tt-stage { min-height: 450px; }
+  .tc-head { top: 12px; left: 12px; right: 12px; }
+  .tc-bar { top: 62px; left: 12px; right: 12px; }
+  .tc-foot { left: 12px; right: 12px; bottom: 10px; }
+  .tc-name { font-size: 15px; }
+  .tc-price { font-size: 21px; }
+  .tc-src { display: none; }
   .tc-foot { grid-template-columns: 1fr; }
   .tc-log { display: none; }
   .tc-drivers { bottom: 130px; }
